@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/logo.png</file>
+        <file>assets/arrow_back.svg</file>
+        <file>assets/camera.svg</file>
+        <file>assets/burger_menu.svg</file>
+    </qresource>
+</RCC>

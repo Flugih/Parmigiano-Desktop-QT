@@ -3,6 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
+import ParmigianoDesktop
+
 Item {
     Rectangle {
         width: 40
@@ -55,7 +57,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 10
-            text: "Код подтверждения"
+            text: qsTr("Confirmation code") // Код подтверждения
             font.bold: true
             color: "white"
             font.pointSize: 18
@@ -66,7 +68,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 30
-            text: "Введите полученный проверочный код для подтверждения вашей учётной записи."
+            text: qsTr("Enter the verification code to confirm your account.") // Введите полученный проверочный код для подтверждения вашей учётной записи.
             color: "#708499"
             font.pointSize: 11
             wrapMode: Text.WordWrap
@@ -81,7 +83,7 @@ Item {
             spacing: 15
 
             Repeater {
-                id: repeater
+                id: repeaterCodeFields
                 model: 6
 
                 TextField {
@@ -108,16 +110,48 @@ Item {
                         radius: 5
                     }
 
+                    ClipboardManager {
+                        id: clipboardManager
+                    }
+
+                    function getDigitalsFromString(string) {
+                        let digitals = [];
+
+                        for (let i = 0; i < string.length; ++i)
+                        {
+                            let ch = string[i];
+
+                            if (ch > '0' && ch < '9')
+                            {
+                                digitals.push(ch);
+                            }
+                        }
+
+                        return digitals;
+                    }
+
                     // Returning num which referred to the end of the code
                     function focusAtEnd() {
-                        for (let i = 0; i < repeater.count; ++i)
+                        for (let i = 0; i < repeaterCodeFields.count; ++i)
                         {
-                            let target = repeater.itemAt(i);
+                            let target = repeaterCodeFields.itemAt(i);
 
                             if (!target.text)
                             {
                                 return i;
                             }
+                        }
+
+                        return repeaterCodeFields.count - 1;
+                    }
+
+                    function setFocusAtEnd() {
+                        let focus = focusAtEnd();
+                        let target = repeaterCodeFields.itemAt(focus);
+
+                        if(target)
+                        {
+                            target.forceActiveFocus()
                         }
                     }
 
@@ -128,13 +162,7 @@ Item {
                         hoverEnabled: true
 
                         onClicked: {
-                            let focus = focusAtEnd();
-                            let target = repeater.itemAt(focus);
-
-                            if(target)
-                            {
-                                target.forceActiveFocus()
-                            }
+                            setFocusAtEnd()
                         }
                     }
 
@@ -143,7 +171,7 @@ Item {
                         // 1-9
                         if (event.key > Qt.Key_0 && event.key < Qt.Key_9)
                         {
-                            if (index !== (repeater.count - 1))
+                            if (index !== (repeaterCodeFields.count - 1))
                             {
                                 nextItemInFocusChain(true).forceActiveFocus();
                             }
@@ -154,28 +182,39 @@ Item {
                         // BACKSPACE
                         if (event.key === Qt.Key_Backspace)
                         {
-                            if ((index !== (repeater.count - 1) && index !== 0)
-                                || (index === (repeater.count - 1) && text.length === 0))
+                            if ((index !== (repeaterCodeFields.count - 1) && index !== 0)
+                                || (index === (repeaterCodeFields.count - 1) && text.length === 0))
                             {
-                                let target = repeater.itemAt(index - 1);
+                                let target = repeaterCodeFields.itemAt(index - 1);
 
                                 target.text = "";
-                                target.forceActiveFocus()
+                                target.forceActiveFocus();
                             }
 
                             return;
                         }
 
+                        // CTRL+V / Paste
                         if (event.matches(StandardKey.Paste))
                         {
-                            //console.log("123");
-                            let focus = focusAtEnd();
-                            let target = repeater.itemAt(focus);
+                            if (index === repeaterCodeFields.count - 1) return;
 
+                            let clipboardText = clipboardManager.getClipboardData();
+                            let digitals = getDigitalsFromString(clipboardText);
 
+                            digitals = digitals.slice(0, repeaterCodeFields.count - index);
 
-                            if (index === (repeater.count - 1))
-                            return;
+                            for (let i = 0; i < digitals.length; ++i)
+                            {
+                                let target = repeaterCodeFields.itemAt(i + index);
+
+                                if (target)
+                                {
+                                    target.text = String(digitals[i]);
+                                }
+                            }
+
+                            setFocusAtEnd();
                         }
                     }
 
@@ -203,7 +242,7 @@ Item {
 
             Text {
                 id: customButtonText
-                text: qsTr("ГОТОВО")
+                text: qsTr("DONE") // ГОТОВО
                 font.pointSize: 11
                 font.bold: true
                 color: "white"
@@ -215,6 +254,29 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+
+                onClicked: {
+                    let code = [];
+
+                    for (let i = 0; i < repeaterCodeFields.count; ++i)
+                    {
+                        let target = repeaterCodeFields.itemAt(i);
+
+                        if (target && target.text)
+                        {
+                            code.push(target.text);
+                        }
+                    }
+
+                    if (code.length === repeaterCodeFields.count)
+                    {
+                        console.log(code);
+                    }
+                    else
+                    {
+                        console.log("invalid code");
+                    }
+                }
             }
         }
     }

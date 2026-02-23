@@ -50,12 +50,45 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
 
+        Rectangle {
+            Layout.preferredWidth: 125
+            Layout.preferredHeight: 125
+            Layout.alignment: Qt.AlignCenter
+            Layout.bottomMargin: 20
+            color: "#4ca2f1"
+            radius: 100
+
+            Image {
+                id: avatarImage
+                width: parent.width * 0.4
+                height: parent.height * 0.4
+                anchors.centerIn: parent
+                source: "qrc:/assets/camera.svg"
+            }
+
+            MultiEffect {
+                source: avatarImage
+                anchors.fill: avatarImage
+
+                colorization: 1.0
+                brightness: 1.0
+                colorizationColor: "#fff"
+            }
+
+            // MouseArea {
+            //     id: avatarArea
+            //     anchors.fill: parent
+            //     hoverEnabled: true
+            //     cursorShape: Qt.PointingHandCursor
+            // }
+        }
+
         Label {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 10
-            text: "Облачный пароль"
+            text: qsTr("Create profile") // Создайте профиль
             font.bold: true
             color: "white"
             font.pointSize: 18
@@ -66,46 +99,68 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 30
-            text: "Укажите облачный пароль от вашего аккаунта - он нужен для безопасного доступа к данным."
+            text: qsTr("Fill in your profile information to start chatting.") // Заполните данные профиля, чтобы начать общение.
             color: "#708499"
             font.pointSize: 11
             wrapMode: Text.WordWrap
         }
 
         TextField {
-            id: cloudPasswordEnterPassword
+            id: createProfileEnterName
             Layout.fillWidth: true
             Layout.preferredHeight: 45
             verticalAlignment: Text.AlignVCenter
             Layout.bottomMargin: 15
             leftPadding: 15
-            placeholderText: "Облачный пароль"
-            echoMode: TextField.Password
+            placeholderText: qsTr("Name") // Имя
             placeholderTextColor: "#7d7d7d"
             color: "white"
             font.pointSize: 12
             selectionColor: "#053ba7"
 
             background: Rectangle {
-                width: cloudPasswordEnterPassword.width
-                height: cloudPasswordEnterPassword.height
+                width: createProfileEnterName.width
+                height: createProfileEnterName.height
                 color: "#18222d"
-                border.color: cloudPasswordEnterPassword.focus ? "#3390ec" : "#333"
+                border.color: createProfileEnterName.focus ? "#3390ec" : "#333"
+                border.width: 1.4
+                radius: 5
+            }
+        }
+
+        TextField {
+            id: createProfileEnterUsername
+            Layout.fillWidth: true
+            Layout.preferredHeight: 45
+            verticalAlignment: Text.AlignVCenter
+            Layout.bottomMargin: 25
+            leftPadding: 15
+            placeholderText: qsTr("Tag @username") // Тег @username
+            placeholderTextColor: "#7d7d7d"
+            color: "white"
+            font.pointSize: 12
+            selectionColor: "#053ba7"
+
+            background: Rectangle {
+                width: createProfileEnterUsername.width
+                height: createProfileEnterUsername.height
+                color: "#18222d"
+                border.color: createProfileEnterUsername.focus ? "#3390ec" : "#333"
                 border.width: 1.4
                 radius: 5
             }
         }
 
         Rectangle {
-            id: cloudPasswordConfirmButton
+            id: confirmEmailConfirmButton
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            color: buttonArea.containsMouse ? "#4ea4f5" : "#3390ec"
+            color: mouseArea.containsMouse ? "#4ea4f5" : "#3390ec"
             radius: 7
 
             Text {
                 id: customButtonText
-                text: qsTr("ГОТОВО")
+                text: qsTr("DONE") // ГОТОВО
                 font.pointSize: 11
                 font.bold: true
                 color: "white"
@@ -113,26 +168,7 @@ Item {
             }
 
             MouseArea {
-                id: buttonArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-            }
-        }
-
-        Text {
-            text: "Забыли пароль?"
-            color: "#4ea4f5"
-            Layout.topMargin: 15
-            Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pointSize: 10
-            font.bold: true
-            font.underline: forgotPasswordArea.containsMouse
-
-            MouseArea {
-                id: forgotPasswordArea
+                id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor

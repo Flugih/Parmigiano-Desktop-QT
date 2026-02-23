@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -18,12 +19,19 @@ qt_add_qml_module(appParmigianoDesktop
     VERSION 1.0
     QML_FILES
         Main.qml
-        QML_FILES ConfirmEmailPage.qml
-        RESOURCES Resource.qrc
-        QML_FILES CreateProfilePage.qml
-        QML_FILES CloudPasswordPage.qml
-        QML_FILES MessengerPage.qml
-        QML_FILES VerifyCodePage.qml
+        ui/auth/ConfirmEmailPage.qml
+        ui/auth/CreateProfilePage.qml
+        ui/auth/CloudPasswordPage.qml
+        ui/auth/MessengerPage.qml
+        ui/auth/VerifyCodePage.qml
+        ui/js/logic.js
+    SOURCES
+        core/clipboardmanager.h
+        core/clipboardmanager.cpp
+        core/config.h
+        core/config.cpp
+    RESOURCES
+        Resource.qrc
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -40,6 +48,9 @@ set_target_properties(appParmigianoDesktop PROPERTIES
 target_link_libraries(appParmigianoDesktop
     PRIVATE Qt6::Quick
 )
+target_link_libraries(appParmigianoDesktop PRIVATE Qt6::Core)
+target_link_libraries(appParmigianoDesktop PRIVATE Qt6::Core)
+target_include_directories(appParmigianoDesktop PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 include(GNUInstallDirs)
 install(TARGETS appParmigianoDesktop

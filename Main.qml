@@ -14,6 +14,6 @@ Window {
     StackView {
         id: stackView
         anchors.fill: parent
-        initialItem: "VerifyCodePage.qml"
+        initialItem: "ui/auth/VerifyCodePage.qml"
     }
 }

@@ -3,6 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
+import "../js/logic.js" as Logic
+
 Item {
     ColumnLayout {
         width: 350
@@ -14,7 +16,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 10
-            text: "Ваша почта"
+            text: qsTr("Your email") // Ваша почта
             font.bold: true
             color: "white"
             font.pointSize: 18
@@ -25,7 +27,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             Layout.bottomMargin: 30
-            text: "Пожалуйста, введите ваш адрес электронной почты для входа."
+            text: qsTr("Please enter your email address to log in.") // Пожалуйста, введите ваш адрес электронной почты для входа.
             color: "#708499"
             font.pointSize: 11
             wrapMode: Text.WordWrap
@@ -38,19 +40,29 @@ Item {
             verticalAlignment: Text.AlignVCenter
             Layout.bottomMargin: 15
             leftPadding: 15
-            placeholderText: "example@mail.com"
+            placeholderText: qsTr("example@mail.com")
             placeholderTextColor: "#7d7d7d"
             color: "white"
             font.pointSize: 12
             selectionColor: "#053ba7"
 
+            property alias borderColor: emailEnterBackground.border.color
+
             background: Rectangle {
+                id: emailEnterBackground
                 width: confirmEmailEnterEmail.width
                 height: confirmEmailEnterEmail.height
                 color: "#18222d"
                 border.color: confirmEmailEnterEmail.focus ? "#3390ec" : "#333"
                 border.width: 1.4
                 radius: 5
+            }
+
+            onTextChanged: {
+                if (borderColor.toString() !== "#3390ec" && borderColor.toString() !== "#333")
+                {
+                    Logic.changeColor(confirmEmailEnterEmail, "borderColor", "#3390ec");
+                }
             }
         }
 
@@ -63,7 +75,7 @@ Item {
 
             Text {
                 id: customButtonText
-                text: qsTr("ПРОДОЛЖИТЬ")
+                text: qsTr("CONTINUE") // ПРОДОЛЖИТЬ
                 font.pointSize: 11
                 font.bold: true
                 color: "white"
@@ -75,6 +87,19 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+
+                onClicked: {
+                    let email = confirmEmailEnterEmail.text
+
+                    if (Logic.validateEmail(email))
+                    {
+                        console.log("all right")
+                    }
+                    else
+                    {
+                        Logic.changeColor(confirmEmailEnterEmail, "borderColor", "#FF0800");
+                    }
+                }
             }
         }
     }

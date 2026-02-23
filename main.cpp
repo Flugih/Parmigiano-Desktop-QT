@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QIcon>
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
@@ -8,6 +9,11 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":/assets/logo.png"));
 
     QQmlApplicationEngine engine;
+    QTranslator translator;
+
+    if(translator.load(":/ui/translations/release/ParmigianoDesktop_ru_RU.qm"))
+        app.installTranslator(&translator);
+
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,

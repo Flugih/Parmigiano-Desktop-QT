@@ -19,12 +19,7 @@ qt_add_qml_module(appParmigianoDesktop
     VERSION 1.0
     QML_FILES
         Main.qml
-        ui/auth/ConfirmEmailPage.qml
-        ui/auth/CreateProfilePage.qml
-        ui/auth/CloudPasswordPage.qml
-        ui/auth/MessengerPage.qml
-        ui/auth/VerifyCodePage.qml
-        ui/js/logic.js
+        ui/js/validate.js
     SOURCES
         core/clipboardmanager.h
         core/clipboardmanager.cpp
@@ -33,6 +28,52 @@ qt_add_qml_module(appParmigianoDesktop
     RESOURCES
         Resource.qrc
 )
+
+qt_add_qml_module(authPages
+    URI ParmigianoDesktop.AuthPages
+    VERSION 1.0
+    OUTPUT_DIRECTORY "ParmigianoDesktop/AuthPages"
+    QML_FILES
+        ui/auth/ConfirmEmailPage.qml
+        ui/auth/CreateProfilePage.qml
+        ui/auth/CloudPasswordPage.qml
+        ui/auth/VerifyCodePage.qml
+)
+
+qt_add_qml_module(messengerPages
+    URI ParmigianoDesktop.MessengerPages
+    VERSION 1.0
+    OUTPUT_DIRECTORY "ParmigianoDesktop/MessengerPages"
+    QML_FILES
+        ui/messenger/MessengerPage.qml
+)
+
+qt_add_qml_module(templates
+    URI ParmigianoDesktop.Templates
+    VERSION 1.0
+    OUTPUT_DIRECTORY "ParmigianoDesktop/Templates"
+    QML_FILES
+        ui/templates/ButtonConfirm.qml
+        ui/templates/CustomInput.qml
+        ui/templates/ArrowBack.qml
+)
+
+qt_add_qml_module(animations
+    URI ParmigianoDesktop.Animations
+    VERSION 1.0
+    OUTPUT_DIRECTORY "ParmigianoDesktop/Animations"
+    QML_FILES
+        ui/animations/WrongInput/Shake.qml
+        ui/animations/WrongInput/BorderPulse.qml
+)
+
+# qt_add_qml_module(js
+#     URI ParmigianoDesktop.js
+#     VERSION 1.0
+#     OUTPUT_DIRECTORY "ParmigianoDesktop/js"
+#     QML_FILES
+#         ui/js/validate.js
+# )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -48,8 +89,15 @@ set_target_properties(appParmigianoDesktop PROPERTIES
 target_link_libraries(appParmigianoDesktop
     PRIVATE Qt6::Quick
 )
-target_link_libraries(appParmigianoDesktop PRIVATE Qt6::Core)
-target_link_libraries(appParmigianoDesktop PRIVATE Qt6::Core)
+target_link_libraries(appParmigianoDesktop
+    PRIVATE
+        Qt6::Core
+        authPages
+        messengerPages
+        templates
+        animations
+        # js
+)
 target_include_directories(appParmigianoDesktop PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 include(GNUInstallDirs)

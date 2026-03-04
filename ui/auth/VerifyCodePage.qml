@@ -3,7 +3,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
-import ParmigianoDesktop
+import ParmigianoDesktop as Logic
+import ParmigianoDesktop.Animations 1.0
+import ParmigianoDesktop.Templates 1.0
+import "qrc:/qt/qml/ParmigianoDesktop/ui/js/validate.js" as Validate
 
 Item {
     Rectangle {
@@ -74,7 +77,15 @@ Item {
             wrapMode: Text.WordWrap
         }
 
+        Shake {
+            id: fieldsShake
+
+            shakeTarget: rowCodeFields
+        }
+
         RowLayout {
+            id: rowCodeFields
+
             Layout.fillWidth: true
             Layout.bottomMargin: 35
             Layout.alignment: Qt.AlignCenter
@@ -86,13 +97,22 @@ Item {
                 id: repeaterCodeFields
                 model: 6
 
-                TextField {
+                Shake {
+                    id: fieldShake
+
+                    shakeTarget: repeaterCodeFields
+                }
+
+
+                delegate: TextField {
                     required property int index
+
+                    property alias animationPulse: fieldPulse
 
                     id: codeField
                     Layout.fillWidth: true
                     Layout.preferredWidth: 0
-                    Layout.preferredHeight: implicitHeight * 1.3
+                    Layout.preferredHeight: implicitHeight * 1.2
                     selectionColor: "#053ba7"
                     font.pointSize: 20
                     color: "white"
@@ -100,8 +120,17 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     cursorVisible: false
+                    //activeFocusOnTab: false
+
+                    BorderPulse {
+                        id: fieldPulse
+
+                        borderTarget: codeFieldBackground
+                    }
 
                     background: Rectangle {
+                        id: codeFieldBackground
+
                         width: codeField.width
                         height: codeField.height
                         color: "#18222d"
@@ -110,9 +139,9 @@ Item {
                         radius: 5
                     }
 
-                    ClipboardManager {
-                        id: clipboardManager
-                    }
+                    // ClipboardManager {
+                    //     id: clipboardManager
+                    // }
 
                     function getDigitalsFromString(string) {
                         let digitals = [];
@@ -149,7 +178,7 @@ Item {
                         let focus = focusAtEnd();
                         let target = repeaterCodeFields.itemAt(focus);
 
-                        if(target)
+                        if (target)
                         {
                             target.forceActiveFocus()
                         }
@@ -194,12 +223,18 @@ Item {
                             return;
                         }
 
+                        if (event.key === Qt.Key_Backspace &&
+                            (event.modifiers & Qt.ControlModifier))
+                        {
+                            console.log("Нажата комбинация Ctrl+Backspace");
+                        }
+
                         // CTRL+V / Paste
                         if (event.matches(StandardKey.Paste))
                         {
                             if (index === repeaterCodeFields.count - 1) return;
 
-                            let clipboardText = clipboardManager.getClipboardData();
+                            let clipboardText = Logic.clipboardManager.getClipboardData();
                             let digitals = getDigitalsFromString(clipboardText);
 
                             digitals = digitals.slice(0, repeaterCodeFields.count - index);
@@ -214,6 +249,13 @@ Item {
                                 }
                             }
 
+                            setFocusAtEnd();
+                        }
+                    }
+
+                    onFocusChanged: {
+                        if (focus && index == 0)
+                        {
                             setFocusAtEnd();
                         }
                     }
@@ -233,48 +275,33 @@ Item {
             }
         }
 
-        Rectangle {
+        ButtonConfirm {
             id: verifyCodeConfirmButton
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            color: buttonArea.containsMouse ? "#4ea4f5" : "#3390ec"
-            radius: 7
 
-            Text {
-                id: customButtonText
-                text: qsTr("DONE") // ГОТОВО
-                font.pointSize: 11
-                font.bold: true
-                color: "white"
-                anchors.centerIn: parent
-            }
+            buttonText: qsTr("DONE")
+            mouseArea.onClicked: {
+                let valid = Validate.verifyCodeValid(repeaterCodeFields);
 
-            MouseArea {
-                id: buttonArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-
-                onClicked: {
-                    let code = [];
+                if (valid)
+                {
+                    console.log("all good");
+                }
+                else
+                {
+                    fieldsShake.start();
 
                     for (let i = 0; i < repeaterCodeFields.count; ++i)
                     {
                         let target = repeaterCodeFields.itemAt(i);
 
-                        if (target && target.text)
+                        if (target)
                         {
-                            code.push(target.text);
+                            target.animationPulse.start();
+                            target.focus = false;
                         }
-                    }
-
-                    if (code.length === repeaterCodeFields.count)
-                    {
-                        console.log(code);
-                    }
-                    else
-                    {
-                        console.log("invalid code");
                     }
                 }
             }

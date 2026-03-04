@@ -3,46 +3,20 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
+import ParmigianoDesktop.Templates 1.0
+import "qrc:/qt/qml/ParmigianoDesktop/ui/js/validate.js" as Validate
+
 Item {
-    Rectangle {
+    ArrowBack {
+        id: arrowBack
+
         width: 40
         height: 30
-        color: "transparent"
 
         anchors.left: parent.left
         anchors.top: parent.top
-
         anchors.topMargin: 15
         anchors.leftMargin: 15
-
-        Image {
-            id: arrowBack
-            sourceSize: Qt.size(30, 30)
-            anchors.centerIn: parent
-            source: "qrc:/assets/arrow_back.svg"
-        }
-
-        MultiEffect {
-            source: arrowBack
-            anchors.fill: arrowBack
-
-            colorization: 1.0
-            brightness: imageArea.containsMouse ? 1.0 : 0.0
-            colorizationColor: imageArea.containsMouse ? "#fff" : "#708499"
-
-            Behavior on colorizationColor {
-                ColorAnimation {
-                    duration: 200
-                }
-            }
-        }
-
-        MouseArea {
-            id: imageArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-        }
     }
 
     ColumnLayout {
@@ -60,6 +34,7 @@ Item {
 
             Image {
                 id: avatarImage
+
                 width: parent.width * 0.4
                 height: parent.height * 0.4
                 anchors.centerIn: parent
@@ -69,18 +44,10 @@ Item {
             MultiEffect {
                 source: avatarImage
                 anchors.fill: avatarImage
-
                 colorization: 1.0
                 brightness: 1.0
                 colorizationColor: "#fff"
             }
-
-            // MouseArea {
-            //     id: avatarArea
-            //     anchors.fill: parent
-            //     hoverEnabled: true
-            //     cursorShape: Qt.PointingHandCursor
-            // }
         }
 
         Label {
@@ -105,73 +72,41 @@ Item {
             wrapMode: Text.WordWrap
         }
 
-        TextField {
+        CustomInput {
             id: createProfileEnterName
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            verticalAlignment: Text.AlignVCenter
-            Layout.bottomMargin: 15
-            leftPadding: 15
-            placeholderText: qsTr("Name") // Имя
-            placeholderTextColor: "#7d7d7d"
-            color: "white"
-            font.pointSize: 12
-            selectionColor: "#053ba7"
+            Layout.bottomMargin: 10
 
-            background: Rectangle {
-                width: createProfileEnterName.width
-                height: createProfileEnterName.height
-                color: "#18222d"
-                border.color: createProfileEnterName.focus ? "#3390ec" : "#333"
-                border.width: 1.4
-                radius: 5
-            }
+            fieldPlaceholderText: qsTr("Name")
         }
 
-        TextField {
+        CustomInput {
             id: createProfileEnterUsername
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            verticalAlignment: Text.AlignVCenter
-            Layout.bottomMargin: 25
-            leftPadding: 15
-            placeholderText: qsTr("Tag @username") // Тег @username
-            placeholderTextColor: "#7d7d7d"
-            color: "white"
-            font.pointSize: 12
-            selectionColor: "#053ba7"
+            Layout.bottomMargin: 15
 
-            background: Rectangle {
-                width: createProfileEnterUsername.width
-                height: createProfileEnterUsername.height
-                color: "#18222d"
-                border.color: createProfileEnterUsername.focus ? "#3390ec" : "#333"
-                border.width: 1.4
-                radius: 5
-            }
+            fieldPlaceholderText: qsTr("Tag @username")
         }
 
-        Rectangle {
+        ButtonConfirm {
             id: confirmEmailConfirmButton
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            color: mouseArea.containsMouse ? "#4ea4f5" : "#3390ec"
-            radius: 7
 
-            Text {
-                id: customButtonText
-                text: qsTr("DONE") // ГОТОВО
-                font.pointSize: 11
-                font.bold: true
-                color: "white"
-                anchors.centerIn: parent
-            }
+            buttonText: qsTr("DONE")
+            mouseArea.onClicked: {
+                let name = createProfileEnterName.field.text;
+                let username = createProfileEnterUsername.field.text;
 
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
+                // console.log(name);
+
+                Validate.checkValid(Validate.validateName(name), createProfileEnterName);
+                Validate.checkValid(Validate.validateUsername(username), createProfileEnterUsername);
             }
         }
     }

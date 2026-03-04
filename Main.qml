@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
+import ParmigianoDesktop.AuthPages 1.0
+
 Window {
     id: mainWindow
     width: 1000
@@ -14,6 +16,6 @@ Window {
     StackView {
         id: stackView
         anchors.fill: parent
-        initialItem: "ui/auth/VerifyCodePage.qml"
+        initialItem: CreateProfilePage {}
     }
 }

@@ -27,7 +27,7 @@
 <context>
     <name>ConfirmEmailPage</name>
     <message>
-        <source>Yor email</source>
+        <source>Your email</source>
         <translation>Ваша почта</translation>
     </message>
 

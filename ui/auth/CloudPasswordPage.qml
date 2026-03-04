@@ -3,6 +3,9 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
+import ParmigianoDesktop.Templates 1.0
+import "qrc:/qt/qml/ParmigianoDesktop/ui/js/validate.js" as Validate
+
 Item {
     Rectangle {
         width: 40
@@ -72,51 +75,26 @@ Item {
             wrapMode: Text.WordWrap
         }
 
-        TextField {
+        CustomInput {
             id: cloudPasswordEnterPassword
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            verticalAlignment: Text.AlignVCenter
             Layout.bottomMargin: 15
-            leftPadding: 15
-            placeholderText: qsTr("Cloud password") // Облачный пароль
-            echoMode: TextField.Password
-            placeholderTextColor: "#7d7d7d"
-            color: "white"
-            font.pointSize: 12
-            selectionColor: "#053ba7"
 
-            background: Rectangle {
-                width: cloudPasswordEnterPassword.width
-                height: cloudPasswordEnterPassword.height
-                color: "#18222d"
-                border.color: cloudPasswordEnterPassword.focus ? "#3390ec" : "#333"
-                border.width: 1.4
-                radius: 5
-            }
+            fieldPlaceholderText: qsTr("Cloud password") // Облачный пароль
         }
 
-        Rectangle {
+        ButtonConfirm {
             id: cloudPasswordConfirmButton
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            color: buttonArea.containsMouse ? "#4ea4f5" : "#3390ec"
-            radius: 7
 
-            Text {
-                id: customButtonText
-                text: qsTr("DONE") // ГОТОВО
-                font.pointSize: 11
-                font.bold: true
-                color: "white"
-                anchors.centerIn: parent
-            }
-
-            MouseArea {
-                id: buttonArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
+            buttonText: qsTr("DONE") // ГОТОВО
+            mouseArea.onClicked: {
+                let password = cloudPasswordEnterPassword.field.text;
+                Validate.checkValid(Validate.validatePassword(password), cloudPasswordEnterPassword)
             }
         }
 

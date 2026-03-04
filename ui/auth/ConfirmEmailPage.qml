@@ -3,7 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 
-import "../js/logic.js" as Logic
+import ParmigianoDesktop.Templates 1.0
+import "qrc:/qt/qml/ParmigianoDesktop/ui/js/validate.js" as Validate
 
 Item {
     ColumnLayout {
@@ -33,73 +34,26 @@ Item {
             wrapMode: Text.WordWrap
         }
 
-        TextField {
+        CustomInput {
             id: confirmEmailEnterEmail
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            verticalAlignment: Text.AlignVCenter
             Layout.bottomMargin: 15
-            leftPadding: 15
-            placeholderText: qsTr("example@mail.com")
-            placeholderTextColor: "#7d7d7d"
-            color: "white"
-            font.pointSize: 12
-            selectionColor: "#053ba7"
 
-            property alias borderColor: emailEnterBackground.border.color
-
-            background: Rectangle {
-                id: emailEnterBackground
-                width: confirmEmailEnterEmail.width
-                height: confirmEmailEnterEmail.height
-                color: "#18222d"
-                border.color: confirmEmailEnterEmail.focus ? "#3390ec" : "#333"
-                border.width: 1.4
-                radius: 5
-            }
-
-            onTextChanged: {
-                if (borderColor.toString() !== "#3390ec" && borderColor.toString() !== "#333")
-                {
-                    Logic.changeColor(confirmEmailEnterEmail, "borderColor", "#3390ec");
-                }
-            }
+            fieldPlaceholderText: qsTr("example@mail.com")
         }
 
-        Rectangle {
+        ButtonConfirm {
             id: confirmEmailConfirmButton
+
             Layout.fillWidth: true
             Layout.preferredHeight: 45
-            color: mouseArea.containsMouse ? "#4ea4f5" : "#3390ec"
-            radius: 7
 
-            Text {
-                id: customButtonText
-                text: qsTr("CONTINUE") // ПРОДОЛЖИТЬ
-                font.pointSize: 11
-                font.bold: true
-                color: "white"
-                anchors.centerIn: parent
-            }
-
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-
-                onClicked: {
-                    let email = confirmEmailEnterEmail.text
-
-                    if (Logic.validateEmail(email))
-                    {
-                        console.log("all right")
-                    }
-                    else
-                    {
-                        Logic.changeColor(confirmEmailEnterEmail, "borderColor", "#FF0800");
-                    }
-                }
+            buttonText: qsTr("CONTINUE") // ПРОДОЛЖИТЬ
+            mouseArea.onClicked: {
+                let email = confirmEmailEnterEmail.field.text;
+                Validate.checkValid(Validate.validateEmail(email), confirmEmailEnterEmail);
             }
         }
     }

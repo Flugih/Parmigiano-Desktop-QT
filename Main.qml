@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
-import ParmigianoDesktop.AuthPages 1.0
+import ParmigianoDesktop as Logic
+import ParmigianoDesktop.FeatureAuth
 
 Window {
     id: mainWindow
@@ -13,9 +14,42 @@ Window {
     title: qsTr("Parmigiano Chat")
     color: "#18222d"
 
+    readonly property var pagesURI: {
+        // AUTH
+        "Login": makeAuthPageURI("Login"),
+        "CreateProfile": makeAuthPageURI("CreateProfile"),
+        "VerifyCode": makeAuthPageURI("VerifyCode"),
+        "CloudPassword": makeAuthPageURI("CloudPassword"),
+
+        // MESSENGER
+    }
+
+    function makeAuthPageURI(pageId) {
+        return "qrc:/qt/qml/ParmigianoDesktop/AuthPages/ui/auth/" + pageId + "Page.qml";
+    }
+
+    function makeMessengerPageURI(pageId) {
+        return "qrc:/qt/qml/ParmigianoDesktop/MessengerPages/ui/messenger/" + pageId + "Page.qml";
+    }
+
+    Connections {
+        target: Navigation
+
+        function onNavigateTo(pageId) {
+            stackView.push(pagesURI[pageId])
+        }
+
+        function onNavigateBack() {
+            if (stackView.depth > 1)
+            {
+                stackView.pop()
+            }
+        }
+    }
+
     StackView {
         id: stackView
         anchors.fill: parent
-        initialItem: CreateProfilePage {}
+        initialItem: LoginPage {}
     }
 }

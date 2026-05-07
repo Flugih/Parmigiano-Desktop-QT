@@ -4,76 +4,187 @@ project(ParmigianoDesktop VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Quick Gui Core Qml Network)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
-qt_add_executable(appParmigianoDesktop
-    main.cpp
-)
+qt_add_executable(appParmigianoDesktop)
 
 qt_add_qml_module(appParmigianoDesktop
     URI ParmigianoDesktop
     VERSION 1.0
     QML_FILES
         Main.qml
-        ui/js/validate.js
     SOURCES
-        core/clipboardmanager.h
-        core/clipboardmanager.cpp
-        core/config.h
-        core/config.cpp
+        main.cpp
     RESOURCES
         Resource.qrc
 )
-
-qt_add_qml_module(authPages
-    URI ParmigianoDesktop.AuthPages
-    VERSION 1.0
-    OUTPUT_DIRECTORY "ParmigianoDesktop/AuthPages"
-    QML_FILES
-        ui/auth/ConfirmEmailPage.qml
-        ui/auth/CreateProfilePage.qml
-        ui/auth/CloudPasswordPage.qml
-        ui/auth/VerifyCodePage.qml
+target_link_libraries(appParmigianoDesktop
+    PRIVATE
+        Qt6::Core
+        Qt6::Quick
+        Qt6::Gui
+        #core
+        coreUI
+        #domain
+        #featureAuth
 )
 
-qt_add_qml_module(messengerPages
-    URI ParmigianoDesktop.MessengerPages
-    VERSION 1.0
-    OUTPUT_DIRECTORY "ParmigianoDesktop/MessengerPages"
-    QML_FILES
-        ui/messenger/MessengerPage.qml
+add_library(core STATIC
+        # Core/Network
+        # -->
+        core/network/http_client.h
+        core/network/http_client.cpp
+
+        # Core/Config
+        # -->
+        core/config/app_config.h
+        core/config/app_config.cpp
+)
+target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(core
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Network
+        Qt6::Qml
 )
 
-qt_add_qml_module(templates
-    URI ParmigianoDesktop.Templates
-    VERSION 1.0
-    OUTPUT_DIRECTORY "ParmigianoDesktop/Templates"
-    QML_FILES
-        ui/templates/ButtonConfirm.qml
-        ui/templates/CustomInput.qml
-        ui/templates/ArrowBack.qml
+add_library(domain STATIC
+        domain/pow_process.h
+        domain/pow_process.cpp
+)
+target_include_directories(domain PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(domain
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
 )
 
-qt_add_qml_module(animations
-    URI ParmigianoDesktop.Animations
+qt_add_library(coreUI STATIC)
+qt_add_qml_module(coreUI
+    URI ParmigianoDesktop.CoreUI
     VERSION 1.0
-    OUTPUT_DIRECTORY "ParmigianoDesktop/Animations"
-    QML_FILES
-        ui/animations/WrongInput/Shake.qml
-        ui/animations/WrongInput/BorderPulse.qml
+    OUTPUT_DIRECTORY "ParmigianoDesktop/CoreUI"
+    SOURCES
+        # Core/ui
+        # -->
+        core/ui/navigation_service.h
+        core/ui/navigation_service.cpp
+        core/ui/ui_state_manager.h
+        core/ui/ui_state_manager.cpp
+        core/ui/clipboard_manager.h
+        core/ui/clipboard_manager.cpp
+        core/ui/localization_manager.h
+        core/ui/localization_manager.cpp
+        core/ui/pmg_types.h
+)
+target_include_directories(coreUI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(coreUI # for MOC padla takaya
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/core/ui
+)
+target_link_libraries(coreUI
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Qml
 )
 
-# qt_add_qml_module(js
-#     URI ParmigianoDesktop.js
-#     VERSION 1.0
-#     OUTPUT_DIRECTORY "ParmigianoDesktop/js"
-#     QML_FILES
-#         ui/js/validate.js
-# )
+qt_add_library(featureAuth STATIC)
+qt_add_qml_module(featureAuth
+    URI ParmigianoDesktop.FeatureAuth
+    VERSION 1.0
+    OUTPUT_DIRECTORY "ParmigianoDesktop/FeatureAuth"
+    #BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    SOURCES
+        # Features/Auth/data
+        # -->
+        features/auth/data/auth_context.h
+        features/auth/data/auth_context.cpp
+
+        # Features/Auth/model
+        # -->
+        features/auth/model/request_data.h
+        features/auth/model/response_data.h
+
+        # Features/Auth/repository
+        # -->
+        features/auth/repository/auth_repository.h
+        features/auth/repository/auth_repository.cpp
+
+        # Features/Auth/sevrice/dto
+        # -->
+        features/auth/service/dto/create_profile_model.h
+        features/auth/service/dto/login_model.h
+        features/auth/service/dto/verify_code_model.h
+
+        # Features/Auth/sevrice/remote
+        # -->
+        features/auth/service/remote/base_source.h
+        features/auth/service/remote/base_source.cpp
+        features/auth/service/remote/create_profile_source.h
+        features/auth/service/remote/create_profile_source.cpp
+        features/auth/service/remote/verify_code_source.h
+        features/auth/service/remote/verify_code_source.cpp
+        features/auth/service/remote/login_source.h
+        features/auth/service/remote/login_source.cpp
+
+        # Features/Auth/viewmodel
+        # -->
+        features/auth/viewmodel/auth_view_model.h
+        features/auth/viewmodel/auth_view_model.cpp
+
+
+    QML_FILES
+        # Features/Auth/components
+        # -->
+        features/auth/components/ButtonConfirm.qml
+        features/auth/components/CustomInput.qml
+        features/auth/components/ArrowBack.qml
+        features/auth/components/NetworkStatusBanner.qml
+        features/auth/components/TextContextMenu.qml
+        features/auth/components/SwitchLanguageMenu.qml
+        features/auth/components/InfoDisplay.qml
+
+        # Features/Auth/components/animations
+        # -->
+        features/auth/components/animations/BorderPulse.qml
+        features/auth/components/animations/Shake.qml
+
+        # Features/Auth/view
+        # -->
+        # features/auth/view/js/validate.js
+        # Features/Auth/view/js
+        # features/auth/view/CreateProfilePage.qml
+        # features/auth/view/CloudPasswordPage.qml
+        # features/auth/view/VerifyCodePage.qml
+        features/auth/view/LoginPage.qml
+    RESOURCES
+        # Features/Auth/view
+        # -->
+        features/auth/view/js/validate.js
+)
+target_include_directories(featureAuth PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories(featureAuth # for MOC padla takaya
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/features/auth/data
+        ${CMAKE_CURRENT_SOURCE_DIR}/features/auth/viewmodel
+)
+target_link_libraries(featureAuth
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Quick
+        core
+        coreUI
+        domain
+)
+#target_link_libraries(featureAuth PRIVATE Qt6::Core)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -85,20 +196,6 @@ set_target_properties(appParmigianoDesktop PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
-
-target_link_libraries(appParmigianoDesktop
-    PRIVATE Qt6::Quick
-)
-target_link_libraries(appParmigianoDesktop
-    PRIVATE
-        Qt6::Core
-        authPages
-        messengerPages
-        templates
-        animations
-        # js
-)
-target_include_directories(appParmigianoDesktop PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 include(GNUInstallDirs)
 install(TARGETS appParmigianoDesktop
